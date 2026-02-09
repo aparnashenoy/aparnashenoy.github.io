@@ -233,3 +233,21 @@ h1{
   h1{font-size:34px}
   .grid{grid-template-columns:1fr}
 }
+/* Fade-in animation */
+.hidden {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.6s ease;
+}
+
+.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Active nav link */
+.navlinks a.active {
+  color: #fff;
+  border-bottom: 2px solid var(--accent);
+}
+
