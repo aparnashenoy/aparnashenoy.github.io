@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aparna Shenoy — builder, product · AI · data</title>
+<meta name="description" content="Builder working across product, AI and data. PhD in machine learning. Knowledge graphs, simulation and anomaly detection for port terminal operations.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --quay:#D9DDD6;
+    --panel:#F2F4F0;
+    --line:#C3CAC1;
+    --ink:#12212A;
+    --steel:#5F7078;
+    --hull:#0E5D63;
+    --water:#189AA2;
+    --hazard:#F0B429;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    background:var(--quay);
+    color:var(--ink);
+    font-family:"IBM Plex Sans",system-ui,sans-serif;
+    font-size:15.5px;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1060px;margin:0 auto;padding:0 24px}
+  a{color:var(--ink)}
+  :focus-visible{outline:2.5px solid var(--water);outline-offset:3px}
+
+  .rule{
+    font-family:"IBM Plex Mono",monospace;
+    font-size:11px;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    color:var(--steel);
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin:0 0 26px;
+  }
+  .rule::after{content:"";flex:1;height:1px;background:var(--line)}
+
+  /* hero */
+  header{padding:64px 0 52px}
+  h1{
+    font-family:"Saira Condensed",sans-serif;
+    font-weight:700;
+    text-transform:uppercase;
+    font-size:clamp(46px,9vw,96px);
+    line-height:.9;
+    letter-spacing:.005em;
+    margin:0 0 24px;
+  }
+  h1 em{font-style:normal;color:var(--hull)}
+  .lede{max-width:60ch;font-size:17px;margin:0 0 18px}
+  .caveat{max-width:60ch;color:var(--steel);font-size:14.5px;margin:0}
+
+  /* work */
+  section{padding:0 0 56px}
+  .work{display:grid;gap:16px}
+  .card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    padding:24px 26px;
+    display:grid;
+    grid-template-columns:minmax(0,1fr) auto;
+    gap:10px 26px;
+    align-items:start;
+    text-decoration:none;
+    transition:border-color .15s, transform .15s;
+  }
+  .card:hover{border-color:var(--ink);transform:translateY(-2px)}
+  .card h2{
+    font-family:"Saira Condensed",sans-serif;
+    font-weight:700;
+    text-transform:uppercase;
+    font-size:23px;
+    letter-spacing:.01em;
+    margin:0 0 8px;
+    grid-column:1;
+  }
+  .card p{margin:0 0 12px;max-width:64ch;grid-column:1}
+  .tags{
+    grid-column:1;
+    font-family:"IBM Plex Mono",monospace;
+    font-size:10.5px;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:var(--steel);
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px 14px;
+    margin:0;
+  }
+  .go{
+    grid-column:2;
+    grid-row:1 / span 3;
+    font-family:"IBM Plex Mono",monospace;
+    font-size:10.5px;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:var(--steel);
+    white-space:nowrap;
+    align-self:start;
+  }
+  .card:hover .go{color:var(--hull)}
+  .flag{
+    display:inline-block;
+    background:var(--hazard);
+    color:#6B4E05;
+    font-family:"IBM Plex Mono",monospace;
+    font-size:10px;
+    letter-spacing:.11em;
+    text-transform:uppercase;
+    padding:2px 7px;
+    margin-left:9px;
+    vertical-align:2px;
+  }
+
+  /* stack */
+  .stack{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:22px 34px}
+  .stack h3{
+    font-family:"IBM Plex Mono",monospace;
+    font-size:10.5px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--steel);
+    font-weight:400;
+    margin:0 0 7px;
+    padding-bottom:7px;
+    border-bottom:1px solid var(--line);
+  }
+  .stack p{margin:0;font-size:14.5px}
+
+  /* footer */
+  footer{border-top:1px solid var(--line);padding:26px 0 60px}
+  .contact{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px 30px;
+    font-family:"IBM Plex Mono",monospace;
+    font-size:12.5px;
+    letter-spacing:.05em;
+  }
+  .contact span{color:var(--steel)}
+
+  @media(max-width:640px){
+    .card{grid-template-columns:1fr}
+    .go{grid-column:1;grid-row:auto}
+    header{padding:44px 0 36px}
+  }
+  @media(prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto}
+    .card{transition:none}
+    .card:hover{transform:none}
+  }
+</style>
+</head>
+<body>
+
+<header class="wrap">
+  <p class="rule">Bengaluru · open to relocation</p>
+  <h1>Aparna<br>Shenoy</h1>
+  <p class="lede">Builder working across product, AI and data. PhD in machine learning, currently at
+  A.P. Møller Maersk building operational intelligence for port terminals: <em>knowledge graphs,
+  simulation, anomaly detection</em>, and the interfaces that put them in front of the people making
+  the decision.</p>
+  <p class="caveat">Most of my production work sits behind a corporate firewall. What's below is the
+  public equivalent, built end to end, and labelled where the data is synthetic.</p>
+</header>
+
+<section class="wrap">
+  <p class="rule">Selected work</p>
+  <div class="work">
+
+    <a class="card" href="https://aparnashenoy.github.io/REPO-NAME/">
+      <h2>Knowledge graph query interface<span class="flag">Live demo</span></h2>
+      <p>Type a question in plain language, watch it become a Cypher traversal, and see the path the
+      query walked to reach its answer. Built to make one argument visible: root cause questions are
+      relational, so the answer sits a fixed number of hops from the question rather than somewhere in
+      a similarity ranking. Synthetic data, precomputed queries.</p>
+      <p class="tags"><span>Neo4j · Cypher</span><span>Vanilla JS</span><span>SVG</span><span>No framework</span></p>
+      <span class="go">Open →</span>
+    </a>
+
+    <a class="card" href="https://github.com/aparnashenoy/terminal_pipeline">
+      <h2>Automated terminal reporting</h2>
+      <p>Replaces a manual export and pivot table process: extracts vessel call data, computes terminal
+      KPIs — TEU throughput, berth utilisation, dwell time — writes a formatted Excel report and emails
+      it on a schedule. Implemented twice on purpose, cron and an Airflow DAG with retries and failure
+      alerting, to show the difference between an automation and something you would run in production.</p>
+      <p class="tags"><span>Python</span><span>pandas</span><span>openpyxl</span><span>Airflow</span></p>
+      <span class="go">Repository →</span>
+    </a>
+
+    <a class="card" href="https://github.com/aparnashenoy/port-operations-analytics-lakehouse">
+      <h2>Port operations lakehouse</h2>
+      <p>End to end build covering ingestion, Delta Lake modelling, a KPI layer and an interactive front
+      end. The full path from raw operational feed to something a planner can read.</p>
+      <p class="tags"><span>PySpark</span><span>Delta Lake</span><span>Databricks</span></p>
+      <span class="go">Repository →</span>
+    </a>
+
+  </div>
+</section>
+
+<section class="wrap">
+  <p class="rule">What I work with</p>
+  <div class="stack">
+    <div>
+      <h3>AI</h3>
+      <p>LLM applications, knowledge graphs (Neo4j, Cypher), RAG, natural language to SQL, prompt
+      engineering, AI assisted coding</p>
+    </div>
+    <div>
+      <h3>Data</h3>
+      <p>Python, SQL, PySpark, pandas, Polars, Azure Databricks, Airflow, REST APIs</p>
+    </div>
+    <div>
+      <h3>Modelling</h3>
+      <p>Anomaly detection, time series, discrete event simulation (SimPy), model validation</p>
+    </div>
+    <div>
+      <h3>Research</h3>
+      <p>PhD in machine learning. Two publications, IEEE and IJCSE, on early sepsis prediction and
+      class imbalance in clinical data</p>
+    </div>
+  </div>
+</section>
+
+<footer class="wrap">
+  <p class="contact">
+    <a href="https://github.com/aparnashenoy">GitHub</a>
+    <a href="https://www.linkedin.com/in/aparna-shenoy-7160a719">LinkedIn</a>
+    <a href="mailto:aparnashenoy88@gmail.com">aparnashenoy88@gmail.com</a>
+    <span>Bengaluru, India</span>
+  </p>
+</footer>
+
+</body>
+</html>
