@@ -1,234 +1,635 @@
-<!doctype html>
-
+ <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Aparna Shenoy | Applied AI/ML Scientist</title>
-  <meta name="description" content="Applied AI/ML Scientist building decision intelligence systems: forecasting, optimization, and real-time APIs for ports, logistics, and digital twins." />
-  <link rel="stylesheet" href="styles.css" />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Yard Graph — ask the terminal a question</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --quay:#D9DDD6;
+    --panel:#F2F4F0;
+    --line:#C3CAC1;
+    --ink:#12212A;
+    --steel:#5F7078;
+    --hull:#0E5D63;
+    --water:#189AA2;
+    --hazard:#F0B429;
+    --hazard-ink:#6B4E05;
+  }
+
+  *{box-sizing:border-box}
+
+  html,body{margin:0;padding:0}
+
+  body{
+    background:var(--quay);
+    color:var(--ink);
+    font-family:"IBM Plex Sans",system-ui,sans-serif;
+    font-size:15px;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  .wrap{max-width:1140px;margin:0 auto;padding:40px 24px 64px}
+
+  /* ---------- masthead ---------- */
+
+  .eyebrow{
+    font-family:"IBM Plex Mono",monospace;
+    font-size:11px;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    color:var(--steel);
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .eyebrow::after{content:"";flex:1;height:1px;background:var(--line)}
+
+  h1{
+    font-family:"Saira Condensed",sans-serif;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:.01em;
+    font-size:clamp(38px,7vw,64px);
+    line-height:.94;
+    margin:18px 0 12px;
+  }
+
+  .standfirst{
+    max-width:52ch;
+    color:var(--steel);
+    margin:0 0 32px;
+  }
+  .standfirst strong{color:var(--ink);font-weight:600}
+
+  /* ---------- ask bar ---------- */
+
+  .ask{
+    display:flex;
+    gap:0;
+    border:1.5px solid var(--ink);
+    background:var(--panel);
+    margin-bottom:14px;
+  }
+
+  .ask input{
+    flex:1;
+    min-width:0;
+    border:0;
+    background:transparent;
+    padding:16px 18px;
+    font:inherit;
+    color:var(--ink);
+  }
+  .ask input::placeholder{color:var(--steel)}
+  .ask input:focus{outline:none;background:#fff}
+
+  .ask button{
+    border:0;
+    border-left:1.5px solid var(--ink);
+    background:var(--ink);
+    color:var(--quay);
+    font-family:"Saira Condensed",sans-serif;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:.1em;
+    font-size:15px;
+    padding:0 26px;
+    cursor:pointer;
+  }
+  .ask button:hover{background:var(--hull)}
+
+  :focus-visible{outline:2.5px solid var(--water);outline-offset:2px}
+
+  .chips{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-bottom:34px;
+  }
+  .chips span{
+    font-family:"IBM Plex Mono",monospace;
+    font-size:11px;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    color:var(--steel);
+    padding-top:7px;
+    margin-right:2px;
+  }
+  .chip{
+    border:1px solid var(--line);
+    background:transparent;
+    color:var(--ink);
+    font:inherit;
+    font-size:13px;
+    padding:6px 12px;
+    cursor:pointer;
+    text-align:left;
+  }
+  .chip:hover{border-color:var(--ink);background:var(--panel)}
+  .chip[aria-pressed="true"]{background:var(--ink);color:var(--quay);border-color:var(--ink)}
+
+  /* ---------- panels ---------- */
+
+  .grid{
+    display:grid;
+    grid-template-columns:minmax(0,340px) minmax(0,1fr);
+    gap:18px;
+    align-items:start;
+  }
+
+  .panel{
+    background:var(--panel);
+    border:1px solid var(--line);
+  }
+
+  .panel-head{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    gap:12px;
+    padding:11px 16px;
+    border-bottom:1px solid var(--line);
+    font-family:"IBM Plex Mono",monospace;
+    font-size:11px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--steel);
+  }
+  .panel-head b{color:var(--ink);font-weight:500}
+
+  .cypher{
+    margin:0;
+    padding:16px;
+    font-family:"IBM Plex Mono",monospace;
+    font-size:12.5px;
+    line-height:1.7;
+    white-space:pre-wrap;
+    word-break:break-word;
+    color:var(--ink);
+  }
+  .kw{color:var(--hull);font-weight:500}
+  .var{color:var(--water)}
+  .str{color:var(--hazard-ink)}
+
+  .stage{display:block;width:100%;height:auto}
+
+  /* ---------- graph ---------- */
+
+  .node-box{fill:var(--panel);stroke:var(--steel);stroke-width:1.5}
+  .node-box.is-seed{fill:var(--hull);stroke:var(--hull)}
+  .node-box.is-hit{fill:var(--hazard);stroke:var(--hazard)}
+
+  .node-label{
+    font-family:"Saira Condensed",sans-serif;
+    font-weight:700;
+    text-transform:uppercase;
+    font-size:13px;
+    fill:var(--ink);
+  }
+  .is-seed + .node-label,
+  .node-label.on-dark{fill:var(--panel)}
+
+  .node-type{
+    font-family:"IBM Plex Mono",monospace;
+    font-size:8.5px;
+    letter-spacing:.13em;
+    text-transform:uppercase;
+    fill:var(--steel);
+  }
+  .node-type.on-dark{fill:#9FBFC1}
+  .node-type.on-hazard{fill:var(--hazard-ink)}
+
+  .edge{fill:none;stroke:var(--steel);stroke-width:1.5}
+  .edge-label{
+    font-family:"IBM Plex Mono",monospace;
+    font-size:9px;
+    letter-spacing:.08em;
+    fill:var(--steel);
+    text-transform:uppercase;
+  }
+
+  .hop-badge{fill:var(--ink)}
+  .hop-num{
+    font-family:"IBM Plex Mono",monospace;
+    font-size:9px;
+    font-weight:500;
+    fill:var(--quay);
+    text-anchor:middle;
+  }
+
+  .g-item{opacity:0;animation:rise .42s cubic-bezier(.2,.7,.3,1) forwards}
+  @keyframes rise{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+  .g-item{transform-box:fill-box;transform-origin:center}
+
+  /* ---------- answer ---------- */
+
+  .answer{padding:16px}
+  .answer p{margin:0 0 14px;max-width:58ch}
+  .answer p:last-child{margin-bottom:0}
+
+  table{border-collapse:collapse;width:100%;font-size:13px;margin-bottom:14px}
+  th{
+    text-align:left;
+    font-family:"IBM Plex Mono",monospace;
+    font-size:10px;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:var(--steel);
+    font-weight:400;
+    padding:0 10px 6px 0;
+    border-bottom:1px solid var(--line);
+  }
+  td{
+    padding:7px 10px 7px 0;
+    border-bottom:1px solid var(--line);
+    font-variant-numeric:tabular-nums;
+  }
+  tr:last-child td{border-bottom:0}
+  td.num{text-align:right;padding-right:0}
+  tr.lead td{background:rgba(240,180,41,.22)}
+
+  .why{
+    border-top:1px solid var(--line);
+    padding:13px 16px;
+    font-size:13px;
+    color:var(--steel);
+  }
+  .why b{
+    color:var(--ink);
+    font-family:"IBM Plex Mono",monospace;
+    font-size:10px;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    font-weight:500;
+    display:block;
+    margin-bottom:4px;
+  }
+
+  .empty{padding:34px 16px;color:var(--steel);max-width:46ch}
+  .empty b{display:block;color:var(--ink);font-weight:600;margin-bottom:6px}
+
+  /* ---------- footer ---------- */
+
+  footer{
+    margin-top:44px;
+    padding-top:16px;
+    border-top:1px solid var(--line);
+    display:flex;
+    flex-wrap:wrap;
+    gap:14px 28px;
+    justify-content:space-between;
+    font-family:"IBM Plex Mono",monospace;
+    font-size:11px;
+    letter-spacing:.06em;
+    color:var(--steel);
+  }
+  footer a{color:var(--ink)}
+
+  @media(max-width:860px){
+    .grid{grid-template-columns:1fr}
+    .wrap{padding:28px 18px 48px}
+  }
+
+  @media(prefers-reduced-motion:reduce){
+    .g-item{animation:none;opacity:1}
+    *{transition:none!important}
+  }
+</style>
 </head>
-
 <body>
-  <!-- ================= HEADER ================= -->
-  <header class="container header">
-    <nav class="nav">
-      <a class="brand" href="#top">Aparna Shenoy</a>
-      <div class="navlinks">
-        <a href="#projects">Projects</a>
-        <a href="#experience">Experience</a>
-        <a href="#skills">Skills</a>
-        <a href="#contact" class="pill">Contact</a>
-      </div>
-    </nav>
+<div class="wrap">
 
-```
-<section class="hero" id="top">
-  <div>
-    <p class="eyebrow">Applied AI/ML • Decision Intelligence • Optimization • Digital Twins</p>
+  <p class="eyebrow">Knowledge graph interface &nbsp;/&nbsp; demo</p>
 
-    <h1>Turning operational data into real-world decisions.</h1>
+  <h1>Ask the terminal<br>a question</h1>
 
-    <p class="subtitle">
-      AI/ML Scientist at Maersk building production-grade decision intelligence systems —
-      combining machine learning, optimization, and real-time APIs for port and logistics operations.
-    </p>
+  <p class="standfirst">Root cause questions are relational, not lexical. This interface turns a plain
+  language question into a Cypher traversal over a port terminal graph, then shows the path it walked to
+  get there — <strong>so an operator can check the reasoning, not just read the number.</strong></p>
 
-    <div class="cta">
-      <a class="btn" href="#projects">View Projects</a>
-      <a class="btn ghost" href="#experience">Work Experience</a>
-    </div>
+  <form class="ask" id="ask" autocomplete="off">
+    <label for="q" class="visually-hidden" style="position:absolute;left:-9999px">Your question</label>
+    <input id="q" type="text" placeholder="e.g. why did berth productivity drop on B3?">
+    <button type="submit">Run</button>
+  </form>
 
-    <div class="meta">
-      <span>Bengaluru, India</span>
-      <span>•</span>
-      <a href="mailto:aparnashenoy88@gmail.com">aparnashenoy88@gmail.com</a>
-    </div>
-
-    <div class="social">
-      <a class="pill" href="https://github.com/aparnashenoy" target="_blank">GitHub</a>
-      <a class="pill" href="https://www.linkedin.com/in/aparna-shenoy-7160a719/" target="_blank">LinkedIn</a>
-    </div>
-  </div>
-
-  <div class="card">
-    <h2>What I focus on</h2>
-    <ul class="bullets">
-      <li>Prediction → Optimization → Decision intelligence pipelines</li>
-      <li>Scalable ML & data pipelines in Databricks / Spark</li>
-      <li>Explainable analytics for operational KPIs</li>
-      <li>Shipping, logistics, and digital-twin simulation domain</li>
-    </ul>
-  </div>
-</section>
-```
-
-  </header>
-
-  <!-- ================= MAIN ================= -->
-
-  <main>
-
-```
-<!-- ===== PROJECTS ===== -->
-<section class="container section" id="projects">
-  <div class="sectionTitle">
-    <h2>Projects</h2>
-    <p>End-to-end applied AI systems from data → model → decision → serving.</p>
-  </div>
-
-  <!-- Port Decision AI -->
-  <article class="project">
-    <div class="projectHead">
-      <div>
-        <h3>Port Decision AI</h3>
-        <p class="muted">Delay prediction and constrained optimization for port operations</p>
-      </div>
-      <div class="projectLinks">
-        <a class="pill" href="https://github.com/aparnashenoy/port-decision-ai/tree/main/03_port_decision_ai" target="_blank">Repo</a>
-      </div>
-    </div>
-
-    <div class="grid">
-      <div class="card">
-        <h4>Problem</h4>
-        <p>Operational delays in ports cascade into cost and schedule disruption due to limited resources.</p>
-      </div>
-      <div class="card">
-        <h4>Solution</h4>
-        <p>Time-series ML prediction with uncertainty combined with OR-Tools optimization to generate actionable allocation decisions.</p>
-      </div>
-      <div class="card">
-        <h4>Tech</h4>
-        <p class="tags">
-          <span>Python</span><span>LightGBM</span><span>OR-Tools</span><span>FastAPI</span><span>Streamlit</span>
-        </p>
-      </div>
-      <div class="card">
-        <h4>Impact Direction</h4>
-        <ul class="bullets">
-          <li>Moves from analytics → prescriptive AI decisions</li>
-          <li>Risk-aware planning using prediction intervals</li>
-          <li>Designed for real-time operational deployment</li>
-        </ul>
-      </div>
-    </div>
-  </article>
-
-  <!-- ML Repo -->
-  <article class="project">
-    <div class="projectHead">
-      <div>
-        <h3>ML Notebook Lab</h3>
-        <p class="muted">Hands-on ML experimentation across real datasets and preprocessing challenges</p>
-      </div>
-      <div class="projectLinks">
-        <a class="pill" href="https://github.com/aparnashenoy/ml" target="_blank">Repo</a>
-      </div>
-    </div>
-
-    <div class="grid">
-      <div class="card">
-        <h4>Scope</h4>
-        <p>EDA, feature engineering, missing-data imputation, imbalance handling, and model evaluation workflows.</p>
-      </div>
-      <div class="card">
-        <h4>Purpose</h4>
-        <p>Demonstrates strong experimental discipline and understanding of real-world ML failure modes.</p>
-      </div>
-      <div class="card">
-        <h4>Tech</h4>
-        <p class="tags">
-          <span>Python</span><span>Jupyter</span><span>Scikit-learn</span><span>Data Prep</span>
-        </p>
-      </div>
-      <div class="card">
-        <h4>Value</h4>
-        <ul class="bullets">
-          <li>Shows depth beyond model training</li>
-          <li>Covers practical ML engineering realities</li>
-        </ul>
-      </div>
-    </div>
-  </article>
-</section>
-
-<!-- ===== EXPERIENCE ===== -->
-<section class="container section" id="experience">
-  <div class="sectionTitle">
-    <h2>Experience</h2>
-    <p>Applied AI delivery across digital twins, maritime analytics, and production ML systems.</p>
-  </div>
-
-  <div class="timeline">
-
-    <div class="role card">
-      <h3>AI/ML Scientist — Maersk</h3>
-      <p class="muted">2023 – Present • Bengaluru</p>
-      <ul class="bullets">
-        <li>Built AI-driven digital-twin analytics for port terminal planning and KPI evaluation.</li>
-        <li>Designed scalable PySpark pipelines and validation frameworks across environments.</li>
-        <li>Delivered explainable diagnostics and decision-support insights for operations.</li>
-        <li>Led forward-deployed workshops with terminal stakeholders.</li>
-      </ul>
-    </div>
-
-    <div class="role card">
-      <h3>Lead Engineer — MicroGenesis</h3>
-      <p class="muted">2022 – 2023</p>
-      <ul class="bullets">
-        <li>Developed end-to-end ML pipelines from ingestion to deployment.</li>
-        <li>Built AIS-based anomaly detection and exposed models via REST APIs.</li>
-      </ul>
-    </div>
-
-    <div class="role card">
-      <h3>Research Scholar (PhD) — CMR University</h3>
-      <p class="muted">2015 – 2022</p>
-      <ul class="bullets">
-        <li>Designed ML methods for early sepsis prediction in low-resource clinical environments.</li>
-        <li>Achieved strong predictive performance with focus on reliability and usability.</li>
-      </ul>
-    </div>
-
-  </div>
-</section>
-
-<!-- ===== SKILLS ===== -->
-<section class="container section" id="skills">
-  <div class="sectionTitle">
-    <h2>Skills</h2>
-  </div>
+  <div class="chips" id="chips"><span>Try</span></div>
 
   <div class="grid">
-    <div class="card"><strong>Languages:</strong> Python, SQL</div>
-    <div class="card"><strong>ML/AI:</strong> Supervised ML, Ensembles, GenAI (prototyping)</div>
-    <div class="card"><strong>Data:</strong> PySpark, Databricks, Delta Lake</div>
-    <div class="card"><strong>Systems:</strong> REST APIs, Git, CI/CD</div>
+    <div class="panel">
+      <div class="panel-head"><b>Generated Cypher</b><span id="hopcount"></span></div>
+      <pre class="cypher" id="cypher"></pre>
+    </div>
+
+    <div>
+      <div class="panel" style="margin-bottom:18px">
+        <div class="panel-head"><b>Traversal</b><span>Neo4j</span></div>
+        <svg class="stage" id="stage" viewBox="0 0 760 300" role="img" aria-label="Graph traversal diagram"></svg>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><b>Answer</b><span id="rowcount"></span></div>
+        <div class="answer" id="answer"></div>
+        <div class="why" id="why"></div>
+      </div>
+    </div>
   </div>
-</section>
 
-<!-- ===== CONTACT ===== -->
-<section class="container section" id="contact">
-  <div class="sectionTitle">
-    <h2>Contact</h2>
-  </div>
+  <footer>
+    <span>Synthetic data. Query patterns are precomputed — no live model or database is attached.</span>
+    <span>Aparna Shenoy · <a href="https://github.com/aparnashenoy">github.com/aparnashenoy</a></span>
+  </footer>
 
-  <div class="card contact">
-    <p><strong>Email:</strong> <a href="mailto:aparnashenoy88@gmail.com">aparnashenoy88@gmail.com</a></p>
-    <p><strong>GitHub:</strong> <a href="https://github.com/aparnashenoy" target="_blank">github.com/aparnashenoy</a></p>
-    <p><strong>LinkedIn:</strong> <a href="https://www.linkedin.com/in/aparna-shenoy-7160a719/" target="_blank">View profile</a></p>
-  </div>
-</section>
+</div>
 
-<footer class="container footer">
-  <p class="muted">© <span id="year"></span> Aparna Shenoy</p>
-</footer>
-```
+<script>
+const QUERIES = [
+  {
+    chip: "Why did productivity drop on berth B3?",
+    match: ["berth","b3","productivity","drop","slow"],
+    cypher: [
+      ["kw","MATCH "],["","("],["var","b"],["",":Berth {code: "],["str","'B3'"],["","})<-[:AT_BERTH]-("],["var","pc"],["",":PortCall)"],
+      ["","\n"],["kw","MATCH "],["","("],["var","pc"],["",")-[:HAS_MOVE]->("],["var","m"],["",":CraneMove)-[:WORKED_BY]->("],["var","e"],["",":Equipment)"],
+      ["","\n"],["kw","MATCH "],["","("],["var","e"],["",")-[:HAD_EVENT]->("],["var","d"],["",":DelayEvent)"],
+      ["","\n"],["kw","WHERE "],["var","pc"],["",".date = "],["kw","date"],["","("],["str","'2026-03-17'"],["",")"],
+      ["","\n"],["kw","RETURN "],["var","e"],["",".id, "],["var","d"],["",".cause, "],["kw","sum"],["","("],["var","d"],["",".minutes) "],["kw","AS "],["","lost"],
+      ["","\n"],["kw","ORDER BY "],["","lost "],["kw","DESC"]
+    ],
+    nodes:[
+      {id:"b",  label:"B3",       type:"Berth",      x:70,  y:150, kind:"seed"},
+      {id:"pc", label:"PC-4471",  type:"PortCall",   x:250, y:150},
+      {id:"m",  label:"312 moves",type:"CraneMove",  x:430, y:80},
+      {id:"e",  label:"QC-04",    type:"Equipment",  x:430, y:220},
+      {id:"d",  label:"96 min",   type:"DelayEvent", x:625, y:220, kind:"hit"}
+    ],
+    edges:[
+      {from:"b", to:"pc", label:"AT_BERTH",  hop:1},
+      {from:"pc",to:"m",  label:"HAS_MOVE",  hop:2},
+      {from:"m", to:"e",  label:"WORKED_BY", hop:3},
+      {from:"e", to:"d",  label:"HAD_EVENT", hop:4}
+    ],
+    cols:["Equipment","Cause","Lost min"],
+    rows:[
+      ["QC-04","Hydraulic fault","96",true],
+      ["QC-04","Spreader reseat","31",false],
+      ["QC-11","Waiting on truck","18",false],
+      ["QC-07","Lashing delay","9",false]
+    ],
+    answer:"Three quarters of the lost minutes on B3 trace back to a single crane. QC-04 recorded 96 minutes of hydraulic fault across 11 moves, plus 31 minutes reseating the spreader. The berth did not slow down — one machine did.",
+    why:"A keyword search over shift reports would return every document mentioning B3. The question is not what mentions B3, it is what is four relationships away from it."
+  },
+  {
+    chip: "What links yard congestion in Block C to MV Aurora?",
+    match:["block c","aurora","congestion","yard","link","connect"],
+    cypher:[
+      ["kw","MATCH "],["","path = ("],["var","v"],["",":Vessel {name: "],["str","'MV Aurora'"],["","})"],
+      ["","\n       -[*1..4]-("],["var","yb"],["",":YardBlock {code: "],["str","'C'"],["","})"],
+      ["","\n"],["kw","RETURN "],["","path"],
+      ["","\n"],["kw","ORDER BY "],["kw","length"],["","(path) "],["kw","ASC"],
+      ["","\n"],["kw","LIMIT "],["","1"]
+    ],
+    nodes:[
+      {id:"v",  label:"MV Aurora", type:"Vessel",    x:64,  y:150, kind:"seed"},
+      {id:"pc", label:"PC-4488",   type:"PortCall",  x:236, y:150},
+      {id:"c",  label:"1,140 TEU", type:"Discharge", x:410, y:150},
+      {id:"yb", label:"Block C",   type:"YardBlock", x:590, y:150, kind:"hit"}
+    ],
+    edges:[
+      {from:"v", to:"pc", label:"MADE_CALL", hop:1},
+      {from:"pc",to:"c",  label:"DISCHARGED",hop:2},
+      {from:"c", to:"yb", label:"STACKED_IN",hop:3}
+    ],
+    cols:["Hop","Relationship","Node"],
+    rows:[
+      ["1","MADE_CALL","PC-4488",false],
+      ["2","DISCHARGED","1,140 TEU",false],
+      ["3","STACKED_IN","Block C",true]
+    ],
+    answer:"Three hops. MV Aurora discharged 1,140 TEU on call PC-4488, and 78% of that box count was stacked into Block C inside a six hour window. The congestion is not a yard planning fault — it is one vessel's discharge landing in one block.",
+    why:"Shortest path between two named nodes. No amount of semantic similarity between the phrases 'Block C' and 'MV Aurora' would surface this — the connection is structural, and it is three edges long."
+  },
+  {
+    chip: "Which cranes appear in every delay over 30 minutes?",
+    match:["crane","every","all","delay","30","repeat","common"],
+    cypher:[
+      ["kw","MATCH "],["","("],["var","e"],["",":Equipment)-[:HAD_EVENT]->("],["var","d"],["",":DelayEvent)"],
+      ["","\n"],["kw","WHERE "],["var","d"],["",".minutes > 30"],
+      ["","\n  "],["kw","AND "],["var","d"],["",".date >= "],["kw","date"],["","("],["str","'2026-03-01'"],["",")"],
+      ["","\n"],["kw","WITH "],["var","e"],["", ", "],["kw","count"],["","("],["kw","DISTINCT "],["var","d"],["",") "],["kw","AS "],["","events"],
+      ["","\n"],["kw","WHERE "],["","events >= 3"],
+      ["","\n"],["kw","RETURN "],["var","e"],["",".id, "],["var","e"],["",".last_service, events"]
+    ],
+    nodes:[
+      {id:"d1",label:"41 min",  type:"DelayEvent", x:80, y:70},
+      {id:"d2",label:"36 min",  type:"DelayEvent", x:80, y:150},
+      {id:"d3",label:"52 min",  type:"DelayEvent", x:80, y:230},
+      {id:"e", label:"QC-04",   type:"Equipment",  x:330,y:150, kind:"hit"},
+      {id:"s", label:"114 days",type:"LastService",x:570,y:150}
+    ],
+    edges:[
+      {from:"d1",to:"e", label:"HAD_EVENT", hop:1},
+      {from:"d2",to:"e", label:"HAD_EVENT", hop:1},
+      {from:"d3",to:"e", label:"HAD_EVENT", hop:1},
+      {from:"e", to:"s", label:"SERVICED",  hop:2}
+    ],
+    cols:["Equipment","Last service","Events"],
+    rows:[
+      ["QC-04","114 days ago","7",true],
+      ["QC-11","23 days ago","3",false],
+      ["RTG-22","61 days ago","3",false]
+    ],
+    answer:"QC-04 again, and this time with a reason attached. Seven delays over 30 minutes in March, against a service interval that is 114 days old. The other two cranes on the list were serviced inside the quarter.",
+    why:"The useful part is the join, not the filter. Counting delays is a spreadsheet job; attaching each crane's maintenance history to its delay history in the same traversal is not."
+  },
+  {
+    chip: "Which shipping line has the worst dwell time?",
+    match:["shipping line","dwell","worst","line","carrier"],
+    cypher:[
+      ["kw","MATCH "],["","("],["var","sl"],["",":ShippingLine)<-[:OPERATED_BY]-("],["var","v"],["",":Vessel)"],
+      ["","\n"],["kw","MATCH "],["","("],["var","v"],["",")-[:MADE_CALL]->("],["var","pc"],["",":PortCall)-[:DISCHARGED]->("],["var","c"],["",":Container)"],
+      ["","\n"],["kw","WITH "],["var","sl"],["", ", "],["kw","avg"],["","("],["var","c"],["",".dwell_hours) "],["kw","AS "],["","dwell"],
+      ["","\n"],["kw","RETURN "],["var","sl"],["",".name, "],["kw","round"],["","(dwell, 1) "],["kw","AS "],["","dwell_hrs"],
+      ["","\n"],["kw","ORDER BY "],["","dwell "],["kw","DESC"]
+    ],
+    nodes:[
+      {id:"sl",label:"Line",     type:"ShippingLine",x:70, y:150, kind:"seed"},
+      {id:"v", label:"14 ships", type:"Vessel",      x:250,y:150},
+      {id:"pc",label:"38 calls", type:"PortCall",    x:430,y:150},
+      {id:"c", label:"91.4 hrs", type:"Container",   x:620,y:150, kind:"hit"}
+    ],
+    edges:[
+      {from:"sl",to:"v", label:"OPERATED_BY",hop:1},
+      {from:"v", to:"pc",label:"MADE_CALL",  hop:2},
+      {from:"pc",to:"c", label:"DISCHARGED", hop:3}
+    ],
+    cols:["Shipping line","Calls","Dwell hrs"],
+    rows:[
+      ["Northbound Lines","38","91.4",true],
+      ["Cassia Maritime","51","64.2",false],
+      ["Perenna Shipping","44","58.9",false],
+      ["Kestrel Container","29","52.6",false]
+    ],
+    answer:"Northbound Lines sits 42% above the next carrier at 91.4 hours average dwell, on the second lowest call count. Low volume, long dwell — the pattern points at documentation hold rather than yard capacity.",
+    why:"This one a SQL query would also answer. Worth saying so: the graph earns its place on the traversal questions above, not on every question."
+  }
+];
 
-  </main>
+const NODE_W = 116, NODE_H = 46;
+const stage   = document.getElementById('stage');
+const cypherEl= document.getElementById('cypher');
+const answerEl= document.getElementById('answer');
+const whyEl   = document.getElementById('why');
+const hopEl   = document.getElementById('hopcount');
+const rowEl   = document.getElementById('rowcount');
+const chipsEl = document.getElementById('chips');
+const input   = document.getElementById('q');
 
-  <script src="script.js"></script>
+const svg = (tag, attrs={}) => {
+  const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+  for (const k in attrs) el.setAttribute(k, attrs[k]);
+  return el;
+};
 
+QUERIES.forEach((q, i) => {
+  const b = document.createElement('button');
+  b.type = 'button';
+  b.className = 'chip';
+  b.textContent = q.chip;
+  b.setAttribute('aria-pressed', 'false');
+  b.addEventListener('click', () => { input.value = q.chip; render(i); });
+  chipsEl.appendChild(b);
+});
+
+function paintCypher(tokens){
+  cypherEl.textContent = '';
+  tokens.forEach(([cls, text]) => {
+    if (!cls) { cypherEl.appendChild(document.createTextNode(text)); return; }
+    const s = document.createElement('span');
+    s.className = cls;
+    s.textContent = text;
+    cypherEl.appendChild(s);
+  });
+}
+
+function drawGraph(q){
+  stage.textContent = '';
+  const byId = Object.fromEntries(q.nodes.map(n => [n.id, n]));
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let step = 0;
+
+  q.edges.forEach(e => {
+    const a = byId[e.from], b = byId[e.to];
+    const g = svg('g', {class:'g-item'});
+    if (!reduce) g.style.animationDelay = (step * 130) + 'ms';
+    step++;
+
+    const ax = a.x + NODE_W/2, ay = a.y + NODE_H/2;
+    const bx = b.x + NODE_W/2, by = b.y + NODE_H/2;
+    const dx = bx - ax, dy = by - ay;
+    const len = Math.hypot(dx, dy) || 1;
+    const pad = 66;
+    const x1 = ax + dx/len * pad, y1 = ay + dy/len * (Math.abs(dy) > 6 ? 30 : pad*0.0);
+    const x2 = bx - dx/len * pad, y2 = by - dy/len * (Math.abs(dy) > 6 ? 30 : pad*0.0);
+
+    g.appendChild(svg('path', {
+      class:'edge',
+      d:`M ${x1} ${ay + (Math.abs(dy)>6 ? (dy>0?24:-24) : 0)} L ${x2} ${by - (Math.abs(dy)>6 ? (dy>0?24:-24) : 0)}`
+    }));
+
+    const mx = (x1+x2)/2, my = (ay+by)/2;
+    const lbl = svg('text', {class:'edge-label', x:mx, y:my - 7, 'text-anchor':'middle'});
+    lbl.textContent = e.label;
+    g.appendChild(lbl);
+
+    g.appendChild(svg('circle', {class:'hop-badge', cx:mx, cy:my + 9, r:7.5}));
+    const num = svg('text', {class:'hop-num', x:mx, y:my + 12});
+    num.textContent = e.hop;
+    g.appendChild(num);
+
+    stage.appendChild(g);
+  });
+
+  q.nodes.forEach(n => {
+    const g = svg('g', {class:'g-item'});
+    if (!reduce) g.style.animationDelay = (step * 130) + 'ms';
+    step++;
+
+    const dark = n.kind === 'seed';
+    g.appendChild(svg('rect', {
+      class:'node-box' + (n.kind ? ' is-' + n.kind : ''),
+      x:n.x, y:n.y, width:NODE_W, height:NODE_H
+    }));
+
+    const t = svg('text', {class:'node-type' + (dark ? ' on-dark' : n.kind === 'hit' ? ' on-hazard' : ''), x:n.x + 11, y:n.y + 17});
+    t.textContent = n.type;
+    g.appendChild(t);
+
+    const l = svg('text', {class:'node-label' + (dark ? ' on-dark' : ''), x:n.x + 11, y:n.y + 35});
+    l.textContent = n.label;
+    if (dark) l.style.fill = 'var(--panel)';
+    if (n.kind === 'hit') l.style.fill = 'var(--hazard-ink)';
+    g.appendChild(l);
+
+    stage.appendChild(g);
+  });
+}
+
+function render(i){
+  const q = QUERIES[i];
+  paintCypher(q.cypher);
+  drawGraph(q);
+
+  const hops = Math.max(...q.edges.map(e => e.hop));
+  hopEl.textContent = hops + (hops === 1 ? ' hop' : ' hops');
+  rowEl.textContent = q.rows.length + ' rows';
+
+  let html = '<table><thead><tr>';
+  q.cols.forEach((c, ci) => html += `<th${ci === q.cols.length-1 ? ' class="num"' : ''}>${c}</th>`);
+  html += '</tr></thead><tbody>';
+  q.rows.forEach(r => {
+    html += `<tr class="${r[r.length-1] ? 'lead' : ''}">`;
+    r.slice(0, -1).forEach((cell, ci) => html += `<td${ci === q.cols.length-1 ? ' class="num"' : ''}>${cell}</td>`);
+    html += '</tr>';
+  });
+  html += '</tbody></table><p>' + q.answer + '</p>';
+  answerEl.innerHTML = html;
+
+  whyEl.innerHTML = '<b>Why a graph</b>' + q.why;
+
+  [...chipsEl.querySelectorAll('.chip')].forEach((c, ci) =>
+    c.setAttribute('aria-pressed', ci === i ? 'true' : 'false'));
+}
+
+function showEmpty(text){
+  stage.textContent = '';
+  cypherEl.textContent = '';
+  hopEl.textContent = '';
+  rowEl.textContent = '';
+  whyEl.innerHTML = '';
+  answerEl.innerHTML = '<div class="empty"><b>No traversal for that one yet.</b>' +
+    'This demo carries four precomputed questions. Pick one above, or rephrase toward berths, ' +
+    'cranes, yard blocks, dwell time, or a named vessel.</div>';
+  [...chipsEl.querySelectorAll('.chip')].forEach(c => c.setAttribute('aria-pressed', 'false'));
+}
+
+document.getElementById('ask').addEventListener('submit', ev => {
+  ev.preventDefault();
+  const v = input.value.toLowerCase().trim();
+  if (!v) return;
+  let best = -1, score = 0;
+  QUERIES.forEach((q, i) => {
+    const s = q.match.filter(m => v.includes(m)).length;
+    if (s > score) { score = s; best = i; }
+  });
+  score > 0 ? render(best) : showEmpty();
+});
+
+render(0);
+</script>
 </body>
 </html>
