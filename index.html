@@ -234,9 +234,13 @@
 
     <a class="card" href="https://github.com/aparnashenoy/port-operations-analytics-lakehouse">
       <h2>Port operations lakehouse</h2>
-      <p>End to end build covering ingestion, Delta Lake modelling, a KPI layer and an interactive front
-      end. The full path from raw operational feed to something a planner can read.</p>
-      <p class="tags"><span>PySpark</span><span>Delta Lake</span><span>Databricks</span></p>
+      <p>From raw vessel, crane and container records to terminal KPIs and vessel-delay prediction.
+      A bronze/silver/gold pipeline on Parquet combines auditable ingestion, cleaned data models and
+      DuckDB SQL analytics for delays, carrier reliability and berth utilisation. A 14-check
+      data-quality framework reports issues explicitly; the scikit-learn ML pipeline builds historical
+      features using only earlier completed calls and evaluates models on a future holdout. Built
+      with synthetic port operations data.</p>
+      <p class="tags"><span>Python · pandas</span><span>Parquet · PyArrow</span><span>DuckDB · SQL</span><span>scikit-learn</span></p>
       <span class="go">Repository →</span>
     </a>
 
